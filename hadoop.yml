@@ -1,0 +1,57 @@
+- name: Configuring namenode
+  hosts: all
+  vars_prompt:
+         - name: ip_namenode
+           prompt: Provide IP Address of Namenode
+           private: no
+         - name: dir_namenode
+           prompt: Give the directory
+           private: no
+  tasks:
+   -  name: Copying hadoop and jdk softwares
+      copy:
+        src: "/root/hadoop-1.2.1-1.x86_64.rpm"
+        dest: "/root"
+
+   -  name: Copying hadoop and jdk softwares
+      copy:
+        src: "/root/jdk-8u171-linux-x64.rpm"
+        dest: "/root"
+
+   -  name: Installing the Hadoop and JDK Softwares
+      command: "rpm -ivh hadoop-1.2.1-1.x86_64.rpm --force jdk-8u171-linux-x64.rpm "
+      register: software
+
+   -  name: Configuring hdfs-site.xml  file
+      copy: 
+        src: "/namenode/hdfs-site.xml"
+        dest: "/etc/hadoop/hdfs-site.xml"
+      
+   -  name: Configuring core-site.xml file
+      copy: 
+        src: "/namenode/core-site.xml"
+        dest: "/etc/hadoop/core-site.xml"
+
+   -  name: Creating directory for Namenode
+      file:
+        path: "{{ dir_namnode }}"
+        state: directory
+      register: dir
+
+   -  name: Foarmate the Namenode
+      shell: "echo Y | hadoop namenode -format"
+
+   -  name: Start the services
+      command: "hadoop-daemon.sh start namenode"
+      register: services
+
+   - name: Software Installed
+     debug:
+       var: software
+   - name: Details of directory 
+     debug: 
+       var: dir
+   - name: namenode Services
+     debug:
+       var: services 
+
